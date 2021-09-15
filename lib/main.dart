@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop2/provider/cart.dart';
+import 'package:shop2/provider/order.dart';
 import 'package:shop2/provider/product.dart';
+import 'package:shop2/screen/add_product_screen.dart';
 import 'package:shop2/screen/cart_screen.dart';
+import 'package:shop2/screen/manage_products_screen.dart';
+import 'package:shop2/screen/orders_screen.dart';
 import 'package:shop2/screen/tab_screen.dart';
 
 void main() {
@@ -18,13 +22,26 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: Products()),
         ChangeNotifierProvider.value(value: CartItems()),
+        ChangeNotifierProvider.value(value: Orders()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        // home: TabScreen(),
+        theme: ThemeData(
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              minimumSize: MaterialStateProperty.all<Size>(
+                const Size(double.infinity, 50),
+              ),
+            ),
+          ),
+        ),
         routes: {
           '/': (_) => const TabScreen(),
           CartScreen.routeName: (_) => const CartScreen(),
+          ManageProductsScreen.routeName: (_) => const ManageProductsScreen(),
+          AddProductScreen.routeName: (_) => const AddProductScreen(),
+          '/orders_screen': (_) => const OrdersScreen(),
         },
       ),
     );

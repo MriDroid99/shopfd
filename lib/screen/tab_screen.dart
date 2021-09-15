@@ -5,6 +5,7 @@ import 'package:shop2/screen/cart_screen.dart';
 import 'package:shop2/screen/favorite_screen.dart';
 import 'package:shop2/screen/products_screen.dart';
 import 'package:shop2/widget/badge.dart';
+import 'package:shop2/widget/drawer_item.dart';
 
 class TabScreen extends StatefulWidget {
   const TabScreen({Key? key}) : super(key: key);
@@ -47,12 +48,33 @@ class _TabScreenState extends State<TabScreen> {
   Widget build(BuildContext context) {
     int count = Provider.of<CartItems>(context).itemsCount;
     return Scaffold(
+      drawer: const DrawerItem(),
       appBar: AppBar(
         title: Text(_pages[_currentIndex]['title']),
         actions: [
           Badge(
             child: IconButton(
               onPressed: () {
+                if (Provider.of<CartItems>(context, listen: false)
+                    .items
+                    .isEmpty) {
+                  ScaffoldMessenger.of(context).showMaterialBanner(
+                    MaterialBanner(
+                      content: const Text('Please add Products'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            // Navigator.pop(context);
+                            ScaffoldMessenger.of(context)
+                                .hideCurrentMaterialBanner();
+                          },
+                          child: const Text('Ok'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
                 Navigator.pushNamed(context, CartScreen.routeName);
               },
               icon: const Icon(
