@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:shop2/provider/cart.dart';
+import 'package:shop2/provider/product.dart';
+import 'package:shop2/util/constants.dart';
 
 class Order with ChangeNotifier {
   String id;
@@ -16,6 +21,8 @@ class Order with ChangeNotifier {
 }
 
 class Orders with ChangeNotifier {
+  String? uid;
+  String? token;
   final List<Order> _orders = [];
 
   List<Order> get orders => [..._orders];
@@ -28,13 +35,65 @@ class Orders with ChangeNotifier {
     return total;
   }
 
-  void addOrder(List<CartItem> prods, double total) {
+  Future<void> getData() async {
+    String uri = '$url/orders.json';
+    var response = await get(Uri.parse(uri));
+    Map<String, dynamic>? extractedData = json.decode(response.body);
+    if (extractedData == null) {
+      return;
+    }
+    _orders.clear();
+    extractedData.forEach((id, data) {
+      _orders.add(
+        Order(
+          id: id,
+          totalPrice: data['totalPrice'],
+          prods: (data['prods'] as List<dynamic>)
+              .map(
+                (prod) => CartItem(
+                  id: prod['id'],
+                  title: prod['title'],
+                  price: double.parse(prod['price']),
+                  quantity: prod['quantity'],
+                ),
+              )
+              .toList(),
+          date: DateTime.parse(
+            data['date'],
+          ),
+        ),
+      );
+    });
+  }
+
+  Future<void> addOrder(List<CartItem> prods, double total) async {
     if (prods.isEmpty) {
       return;
     }
+    String uri = '$url/orders.json';
+    var response = await post(
+      Uri.parse(uri),
+      body: json.encode(
+        {
+          'totalPrice': total,
+          'date': DateTime.now().toIso8601String(),
+          // Convert CartItem to Map
+          'prods': prods
+              .map(
+                (prod) => {
+                  'id': prod.id,
+                  'title': prod.title,
+                  'price': prod.price.toString(),
+                  'quantity': prod.quantity,
+                },
+              )
+              .toList(),
+        },
+      ),
+    );
     _orders.add(
       Order(
-        id: DateTime.now().toString(),
+        id: json.decode(response.body)['name'],
         totalPrice: total,
         prods: prods,
         date: DateTime.now(),

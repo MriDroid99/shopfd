@@ -1,15 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop2/provider/auth.dart';
 import 'package:shop2/provider/cart.dart';
 import 'package:shop2/provider/order.dart';
 import 'package:shop2/provider/product.dart';
 import 'package:shop2/screen/add_product_screen.dart';
+import 'package:shop2/screen/auth_screen.dart';
 import 'package:shop2/screen/cart_screen.dart';
 import 'package:shop2/screen/manage_products_screen.dart';
 import 'package:shop2/screen/orders_screen.dart';
 import 'package:shop2/screen/tab_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -20,6 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: Auth()),
         ChangeNotifierProvider.value(value: Products()),
         ChangeNotifierProvider.value(value: CartItems()),
         ChangeNotifierProvider.value(value: Orders()),
@@ -37,7 +43,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
         routes: {
-          '/': (_) => const TabScreen(),
+          '/': (_) => const AuthScreen(),
+          '/tab_screen': (_) => const TabScreen(),
           CartScreen.routeName: (_) => const CartScreen(),
           ManageProductsScreen.routeName: (_) => const ManageProductsScreen(),
           AddProductScreen.routeName: (_) => const AddProductScreen(),

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "866913179593",
+    "firebase_url": "https://shopappfon-default-rtdb.firebaseio.com",
+    "project_id": "shopappfon",
+    "storage_bucket": "shopappfon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866913179593:android:d70cdc29f3379b348bba18",
+        "android_client_info": {
+          "package_name": "com.example.shop2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "866913179593-j4kt2m0rckmr1mko06n6iadir3le0mhl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKpGhGW5BUD637z6EFkic8nKyv9pxJJnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866913179593-j4kt2m0rckmr1mko06n6iadir3le0mhl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

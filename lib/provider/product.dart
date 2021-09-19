@@ -18,13 +18,23 @@ class Product with ChangeNotifier {
     this.isFav = false,
   });
 
-  void toggleFav() {
+  Future<void> toggleFav() async {
+    String uri = '$url/products/$id.json';
+    await patch(
+      Uri.parse(uri),
+      body: json.encode({
+        'isFav': !isFav,
+      }),
+    );
     isFav = !isFav;
     notifyListeners();
   }
 }
 
 class Products with ChangeNotifier {
+  String? uid;
+  String? token;
+
   final List<Product> _prods = [
     // Product(
     //   id: '1',
@@ -58,8 +68,8 @@ class Products with ChangeNotifier {
   List<Product> get favProds =>
       _prods.where((element) => element.isFav).toList();
 
-  void toggleFav(String id) {
-    _prods.firstWhere((element) => element.id == id).toggleFav();
+  Future<void> toggleFav(String id) async {
+    await _prods.firstWhere((element) => element.id == id).toggleFav();
     notifyListeners();
   }
 
@@ -70,7 +80,25 @@ class Products with ChangeNotifier {
     String uri = '$url/products.json';
 
     var response = await get(Uri.parse(uri));
-    print(response.body);
+    Map<String, dynamic>? extractedData = json.decode(response.body);
+    if (extractedData == null) {
+      return;
+    }
+    _prods.clear();
+    extractedData.forEach(
+      (id, data) {
+        _prods.add(
+          Product(
+            id: id,
+            title: data['title'],
+            description: data['description'],
+            imgUrl: data['imgUrl'],
+            price: double.parse(data['price']),
+            isFav: data['isFav'],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> addProduct({
@@ -89,6 +117,7 @@ class Products with ChangeNotifier {
           'price': price.toString(),
           'description': description,
           'imgUrl': imgUrl,
+          'isFav': false,
         },
       ),
     );

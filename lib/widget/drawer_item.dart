@@ -27,7 +27,7 @@ class DrawerItem extends StatelessWidget {
           ),
           ListTile(
             title: const Text('Products'),
-            onTap: () => Navigator.pushReplacementNamed(context, '/'),
+            onTap: () => Navigator.pushReplacementNamed(context, '/tab_screen'),
           ),
           ListTile(
             title: const Text('Orders'),

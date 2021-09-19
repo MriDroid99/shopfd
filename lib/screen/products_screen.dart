@@ -8,11 +8,11 @@ class ProductsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Product> _prods = Provider.of<Products>(context).prods;
     return FutureBuilder(
       future: Provider.of<Products>(context, listen: false).getData(),
       builder: (_, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
+          List<Product> _prods = Provider.of<Products>(context).prods;
           return Padding(
             padding: const EdgeInsets.all(10.0),
             child: GridView.builder(
