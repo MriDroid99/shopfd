@@ -21,12 +21,12 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
   List<Product> _selectedProd = [];
   List<Product> _prods = [];
 
-  @override
-  void didChangeDependencies() {
-    _prods = Provider.of<Products>(context).prods;
-    _selectedProd = [..._prods];
-    super.didChangeDependencies();
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   // _prods = Provider.of<Products>(context).prods;
+  //   // _selectedProd = [..._prods];
+  //   super.didChangeDependencies();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -36,46 +36,57 @@ class _ManageProductsScreenState extends State<ManageProductsScreen> {
         title: const Text('Manage Products'),
       ),
       drawer: const DrawerItem(),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Product Name',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (val) {
-                setState(
-                  () {
-                    _selectedProd = _prods
-                        .where(
-                          (element) => element.title
-                              .toLowerCase()
-                              .contains(val.toLowerCase()),
-                        )
-                        .toList();
-                  },
-                );
-              },
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
-                value: _selectedProd[i],
-                child: const ManageProductItem(),
-              ),
-              separatorBuilder: (ctx, i) => const Divider(
-                thickness: 1.5,
-                height: 0,
-              ),
-              itemCount: _selectedProd.length,
-            ),
-          ),
-        ],
-      ),
+      body: FutureBuilder(
+          future: Provider.of<Products>(context).getUserData(),
+          builder: (_, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              _prods = Provider.of<Products>(context).prods;
+              _selectedProd = [..._prods];
+              return Column(
+                children: [
+                  // Padding(
+                  // padding: const EdgeInsets.all(10.0),
+                  // child: TextField(
+                  //   decoration: const InputDecoration(
+                  //     border: OutlineInputBorder(),
+                  //     labelText: 'Product Name',
+                  //     prefixIcon: Icon(Icons.search),
+                  //   ),
+                  //   onChanged: (val) {
+                  //     setState(
+                  //       () {
+                  //         _selectedProd = _prods
+                  //             .where(
+                  //               (element) => element.title
+                  //                   .toLowerCase()
+                  //                   .contains(val.toLowerCase()),
+                  //             )
+                  //             .toList();
+                  //       },
+                  //     );
+                  //   },
+                  // ),
+                  // ),
+                  Expanded(
+                    child: ListView.separated(
+                      itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+                        value: _selectedProd[i],
+                        child: const ManageProductItem(),
+                      ),
+                      separatorBuilder: (ctx, i) => const Divider(
+                        thickness: 1.5,
+                        height: 0,
+                      ),
+                      itemCount: _selectedProd.length,
+                    ),
+                  ),
+                ],
+              );
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () =>
             Navigator.pushNamed(context, AddProductScreen.routeName),

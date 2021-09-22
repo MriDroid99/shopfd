@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:shop2/util/constants.dart';
 
 class Product with ChangeNotifier {
@@ -32,36 +33,21 @@ class Product with ChangeNotifier {
 }
 
 class Products with ChangeNotifier {
-  String? uid;
-  String? token;
+  String? _uid;
+  String? _token;
 
-  final List<Product> _prods = [
-    // Product(
-    //   id: '1',
-    //   title: 'title 1',
-    //   description: 'description 1',
-    //   imgUrl:
-    //       'https://cdn.iconscout.com/icon/free/png-256/flutter-3629369-3032362.png',
-    //   price: 100,
-    // ),
-    // Product(
-    //   id: '2',
-    //   title: 'title 2',
-    //   description: 'description 2',
-    //   imgUrl:
-    //       'https://cdn.iconscout.com/icon/free/png-256/flutter-3629369-3032362.png',
-    //   price: 150,
-    // ),
-    // Product(
-    //   id: '3',
-    //   title: 'title 3',
-    //   description: 'description 3',
-    //   imgUrl:
-    //       'https://cdn.iconscout.com/icon/free/png-256/flutter-3629369-3032362.png',
-    //   price: 500,
-    //   isFav: true,
-    // ),
-  ];
+  var dbRef = FirebaseDatabase.instance.reference();
+
+  Products({
+    String? uid,
+    String? token,
+    List<Product>? prods,
+  })  : _uid = uid,
+        _token = token,
+        _prods = prods ?? [];
+
+  // https://cdn.iconscout.com/icon/free/png-256/flutter-3629369-3032362.png
+  List<Product> _prods = [];
 
   List<Product> get prods => [..._prods];
 
@@ -76,16 +62,46 @@ class Products with ChangeNotifier {
   Product findById(String id) =>
       _prods.firstWhere((element) => element.id == id);
 
-  Future<void> getData() async {
-    String uri = '$url/products.json';
+  Future<void> getAllData() async {
+    // String uri = '$url/products.json?auth=$_token';
 
-    var response = await get(Uri.parse(uri));
-    Map<String, dynamic>? extractedData = json.decode(response.body);
-    if (extractedData == null) {
-      return;
-    }
+    // var response = await get(Uri.parse(uri));
+
+    var response = await dbRef.child('products').get();
+
     _prods.clear();
-    extractedData.forEach(
+    response.value.forEach((uid, userProd) {
+      userProd.forEach(
+        (id, data) {
+          _prods.add(
+            Product(
+              id: id,
+              title: data['title'],
+              description: data['description'],
+              imgUrl: data['imgUrl'],
+              price: double.parse(data['price']),
+              isFav: data['isFav'],
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  Future<void> getUserData() async {
+    // String uri = '$url/products/$_uid.json?auth=$_token';
+
+    // var response = await get(Uri.parse(uri));
+    // Map<String, dynamic>? extractedData = json.decode(response.body);
+    // if (extractedData == null) {
+    //   return;
+    // }
+    // print(extractedData);
+
+    var response = await dbRef.child('products').child('$_uid').get();
+
+    _prods.clear();
+    response.value?.forEach(
       (id, data) {
         _prods.add(
           Product(
@@ -107,23 +123,31 @@ class Products with ChangeNotifier {
     required String description,
     required String imgUrl,
   }) async {
-    String uri = '$url/products.json';
-    // Post Request
-    var response = await post(
-      Uri.parse(uri),
-      body: json.encode(
-        {
-          'title': title,
-          'price': price.toString(),
-          'description': description,
-          'imgUrl': imgUrl,
-          'isFav': false,
-        },
-      ),
-    );
+    // String uri = '$url/products/$_uid.json?auth=$_token';
+    // // Post Request
+    // var response = await post(
+    //   Uri.parse(uri),
+    //   body: json.encode(
+    //     {
+    //       'title': title,
+    //       'price': price.toString(),
+    //       'description': description,
+    //       'imgUrl': imgUrl,
+    //       'isFav': false,
+    //     },
+    //   ),
+    // );
+    var response = dbRef.child('products').child('$_uid').push();
+    await response.set({
+      'title': title,
+      'price': price.toString(),
+      'description': description,
+      'imgUrl': imgUrl,
+      'isFav': false,
+    });
     _prods.add(
       Product(
-        id: json.decode(response.body)['name'],
+        id: response.key,
         title: title,
         price: price,
         description: description,
@@ -141,17 +165,26 @@ class Products with ChangeNotifier {
     required String description,
     required String imgUrl,
   }) async {
-    String uri = '$url/products/$id.json';
-    await patch(
-      Uri.parse(uri),
-      body: json.encode(
-        {
-          'title': title,
-          'price': price.toString(),
-          'description': description,
-          'imgUrl': imgUrl,
-        },
-      ),
+    // String uri = '$url/products/$_uid/$id.json?auth=$_token';
+    // await patch(
+    //   Uri.parse(uri),
+    //   body: json.encode(
+    //     {
+    //       'title': title,
+    //       'price': price.toString(),
+    //       'description': description,
+    //       'imgUrl': imgUrl,
+    //     },
+    //   ),
+    // );
+    var response = dbRef.child('products').child('$_uid').child(id);
+    await response.update(
+      {
+        'title': title,
+        'price': price.toString(),
+        'description': description,
+        'imgUrl': imgUrl,
+      },
     );
     int updatedIndex = _prods.indexWhere((element) => element.id == id);
     Product prod = Product(
@@ -166,8 +199,10 @@ class Products with ChangeNotifier {
   }
 
   Future<void> removeProduct(String id) async {
-    String uri = '$url/products/$id.json';
-    await delete(Uri.parse(uri));
+    // String uri = '$url/products/$_uid/$id.json?auth=$_token';
+    // await delete(Uri.parse(uri));
+    var response = dbRef.child('products').child('$_uid').child(id);
+    response.remove;
     _prods.removeWhere((element) => element.id == id);
     notifyListeners();
   }

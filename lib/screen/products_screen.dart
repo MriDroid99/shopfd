@@ -9,7 +9,7 @@ class ProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<Products>(context, listen: false).getData(),
+      future: Provider.of<Products>(context, listen: false).getUserData(),
       builder: (_, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           List<Product> _prods = Provider.of<Products>(context).prods;

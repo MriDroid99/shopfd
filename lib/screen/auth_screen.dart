@@ -95,13 +95,15 @@ class AuthCard extends StatefulWidget {
 
 class _AuthCardState extends State<AuthCard> {
   var _showPassword = false;
+  String? email;
+  String? password;
 
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.login;
-  final Map<String, String> _authData = {
-    'email': '',
-    'password': '',
-  };
+  // Map<String, String> _authData = {
+  //   'email': '',
+  //   'password': '',
+  // };
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
@@ -132,12 +134,18 @@ class _AuthCardState extends State<AuthCard> {
       _isLoading = true;
     });
     if (_authMode == AuthMode.signup) {
-      await Provider.of<Auth>(context, listen: false)
-          .signUp(_authData['email']!, _authData['password']!);
+      await Provider.of<Auth>(context, listen: false).signUp(
+        email!,
+        password!,
+      );
     } else {
-      await Provider.of<Auth>(context, listen: false)
-          .logIn(_authData['email']!, _authData['password']!);
+      await Provider.of<Auth>(context, listen: false).logIn(
+        email!,
+        password!,
+      );
     }
+    Navigator.pushNamed(context, '/tab_screen');
+    print('auth${Provider.of<Auth>(context, listen: false).uid}');
     // try {
     //   if (_authMode == AuthMode.login) {
     //     // Log user in
@@ -203,7 +211,7 @@ class _AuthCardState extends State<AuthCard> {
                     return null;
                   },
                   onSaved: (value) {
-                    _authData['email'] = value!;
+                    email = value;
                   },
                 ),
                 TextFormField(
@@ -235,7 +243,7 @@ class _AuthCardState extends State<AuthCard> {
                     return null;
                   },
                   onSaved: (value) {
-                    _authData['password'] = value!;
+                    password = value;
                   },
                 ),
                 if (_authMode == AuthMode.signup)

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shop2/provider/cart.dart';
-import 'package:shop2/provider/product.dart';
 import 'package:shop2/util/constants.dart';
 
 class Order with ChangeNotifier {
@@ -21,9 +20,15 @@ class Order with ChangeNotifier {
 }
 
 class Orders with ChangeNotifier {
-  String? uid;
-  String? token;
-  final List<Order> _orders = [];
+  String? _uid;
+  String? _token;
+
+  Orders({String? uid, String? token, List<Order>? orders})
+      : _uid = uid,
+        _token = token,
+        _orders = orders ?? [];
+
+  List<Order> _orders = [];
 
   List<Order> get orders => [..._orders];
 
@@ -36,7 +41,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> getData() async {
-    String uri = '$url/orders.json';
+    String uri = '$url/orders/$_uid.json?auth=$_token';
     var response = await get(Uri.parse(uri));
     Map<String, dynamic>? extractedData = json.decode(response.body);
     if (extractedData == null) {
@@ -70,7 +75,7 @@ class Orders with ChangeNotifier {
     if (prods.isEmpty) {
       return;
     }
-    String uri = '$url/orders.json';
+    String uri = '$url/orders/$_uid.json?auth=$_token';
     var response = await post(
       Uri.parse(uri),
       body: json.encode(

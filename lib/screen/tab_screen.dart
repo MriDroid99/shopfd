@@ -47,6 +47,7 @@ class _TabScreenState extends State<TabScreen> {
   @override
   Widget build(BuildContext context) {
     int count = Provider.of<CartItems>(context).itemsCount;
+
     return Scaffold(
       drawer: const DrawerItem(),
       appBar: AppBar(

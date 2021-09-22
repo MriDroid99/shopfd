@@ -26,9 +26,25 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: Auth()),
-        ChangeNotifierProvider.value(value: Products()),
         ChangeNotifierProvider.value(value: CartItems()),
-        ChangeNotifierProvider.value(value: Orders()),
+        // ChangeNotifierProvider.value(value: Products()),
+        // ChangeNotifierProvider.value(value: Orders()),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: (_) => Orders(),
+          update: (_, auth, oldOrders) => Orders(
+            uid: auth.uid,
+            token: auth.token,
+            orders: oldOrders?.orders,
+          ),
+        ),
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: (_) => Products(),
+          update: (_, auth, oldProducts) => Products(
+            uid: auth.uid,
+            token: auth.token,
+            prods: oldProducts?.prods ?? [],
+          ),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -42,8 +58,27 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        home: Consumer<Auth>(
+          builder: (_, auth, child) => FutureBuilder(
+            future: auth.getDataFromsPref(),
+            builder: (_, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (auth.token == null) {
+                  return const AuthScreen();
+                } else {
+                  return const TabScreen();
+                }
+              }
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            },
+          ),
+        ),
         routes: {
-          '/': (_) => const AuthScreen(),
+          '/auth_screen': (_) => const AuthScreen(),
           '/tab_screen': (_) => const TabScreen(),
           CartScreen.routeName: (_) => const CartScreen(),
           ManageProductsScreen.routeName: (_) => const ManageProductsScreen(),
