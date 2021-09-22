@@ -14,6 +14,7 @@ class Auth with ChangeNotifier {
     token = await user.user!.getIdToken();
     sPref.setString('uid', uid!);
     sPref.setString('token', token!);
+    notifyListeners();
   }
 
   Future<void> logIn(String email, String password) async {
@@ -27,6 +28,7 @@ class Auth with ChangeNotifier {
 
     sPref.setString('uid', uid!);
     sPref.setString('token', token!);
+    notifyListeners();
   }
 
   Future<void> logout() async {

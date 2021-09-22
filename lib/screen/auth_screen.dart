@@ -145,7 +145,6 @@ class _AuthCardState extends State<AuthCard> {
       );
     }
     Navigator.pushNamed(context, '/tab_screen');
-    print('auth${Provider.of<Auth>(context, listen: false).uid}');
     // try {
     //   if (_authMode == AuthMode.login) {
     //     // Log user in
