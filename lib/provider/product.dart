@@ -33,8 +33,8 @@ class Product with ChangeNotifier {
 }
 
 class Products with ChangeNotifier {
-  String? _uid;
-  String? _token;
+  final String? _uid;
+  final String? _token;
 
   var dbRef = FirebaseDatabase.instance.reference();
 

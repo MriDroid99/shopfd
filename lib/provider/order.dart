@@ -20,8 +20,8 @@ class Order with ChangeNotifier {
 }
 
 class Orders with ChangeNotifier {
-  String? _uid;
-  String? _token;
+  final String? _uid;
+  final String? _token;
 
   Orders({String? uid, String? token, List<Order>? orders})
       : _uid = uid,
