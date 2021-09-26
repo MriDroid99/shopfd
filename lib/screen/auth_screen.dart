@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop2/model/http_exception.dart';
 import 'package:shop2/provider/auth.dart';
 
 enum AuthMode { signup, login }
@@ -133,37 +135,24 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.signup) {
-      await Provider.of<Auth>(context, listen: false).signUp(
-        email!,
-        password!,
-      );
-    } else {
-      await Provider.of<Auth>(context, listen: false).logIn(
-        email!,
-        password!,
-      );
+
+    try {
+      if (_authMode == AuthMode.signup) {
+        await Provider.of<Auth>(context, listen: false).signUp(
+          email!,
+          password!,
+        );
+      } else {
+        await Provider.of<Auth>(context, listen: false).logIn(
+          email!,
+          password!,
+        );
+      }
+      Navigator.pushNamed(context, '/tab_screen');
+    } catch (error) {
+      _showErrorDialog(error.toString());
     }
-    Navigator.pushNamed(context, '/tab_screen');
-    // try {
-    //   if (_authMode == AuthMode.login) {
-    //     // Log user in
-    //     await Provider.of<Auth>(context, listen: false).logIn(
-    //       _authData['email'],
-    //       _authData['password'],
-    //     );
-    //   } else {
-    //     // Sign user up
-    //     await Provider.of<Auth>(context, listen: false).signUp(
-    //       _authData['email'],
-    //       _authData['password'],
-    //     );
-    //   }
-    // } catch (error) {
-    //   const errorMessage =
-    //       'Could not authenticate you. Please try again later.';
-    //   _showErrorDialog(errorMessage);
-    // }
+
     setState(() {
       _isLoading = false;
     });
